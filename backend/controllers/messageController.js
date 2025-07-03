@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const Message = require("../models/Message");
 
 // @desc    Send a message (save it in DB)
