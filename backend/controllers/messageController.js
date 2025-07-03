@@ -38,9 +38,12 @@ exports.getMessagesBetweenUsers = async (req, res) => {
         { sender: userId1, receiver: userId2 },
         { sender: userId2, receiver: userId1 },
       ],
-    });
+    })
+    .sort({timestamp : 1})     //sort from oldest -> newest from timestamp
+
 
     res.status(200).json(messages);
+    
   } catch (err) {
     res
       .status(500)
