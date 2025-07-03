@@ -13,13 +13,13 @@ app.use(express.json());
 
 //  --- Routes ---
 // test route 
-app.use('/',(req,res)=>{ res.send("hello from Backend")});
+app.get('/',(req,res)=>{ res.send("hello from Backend")});
 
 // Auth routes (register, login)
 app.use('/api/auth', require('./routes/authRoutes'));
 
 // Message routes (send & fetch messages - coming in next step)
-// app.use('/api/messages', require('./routes/messageRoutes'));
+app.use('/api/messages', require('./routes/messageRoutes'));
 
 //  --- HTTP Server ---
 const PORT = process.env.PORT || 5000;
