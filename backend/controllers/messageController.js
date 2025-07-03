@@ -40,10 +40,12 @@ exports.getMessagesBetweenUsers = async (req, res) => {
       ],
     })
     .sort({timestamp : 1})     //sort from oldest -> newest from timestamp
+    .populate('sender','username')  // Replace sender ObjectId with username
+    .populate('receiver','username') // Replace receiver ObjectId with username
 
 
     res.status(200).json(messages);
-    
+
   } catch (err) {
     res
       .status(500)
