@@ -7,6 +7,8 @@ const connectDB = require("./config/db");
 const Message = require("./models/Message");
 const app = express();
 dotenv.config();
+const onlineUsers = new Map();  // key: userId, value: socket.id
+
 
 connectDB(); // connect MongoDB
 app.use(cors()); // middleware
@@ -34,38 +36,58 @@ const io = new Server(server, {
   },
 });
 
-// Socket connection handler
+
 io.on("connection", (socket) => {
   console.log(`🟢 New socket connected: ${socket.id}`);
 
-  // Listen for a message from a client
+  // Step 1: Add user to online map
+  socket.on("addUser", (userId) => {
+    onlineUsers.set(userId, socket.id);
+    console.log(`👤 User ${userId} is online with socket ${socket.id}`);
+  });
+
+  // Step 2: Send a private message
   socket.on("sendMessage", async (data) => {
     try {
       const { sender, receiver, text } = data;
 
-      // Create and save message in MongoDB
+      // Save the message to MongoDB
       const newMessage = await Message.create({
         sender,
         receiver,
         text,
       });
 
-      // Populate sender and receiver usernames
       const populatedMessage =
         (await newMessage
           .populate("sender", "username")
           .populate("receiver", "username")
           .execPopulate?.()) || newMessage;
 
-      // Emit the saved message to all clients
-      io.emit("receiveMessage", populatedMessage);
+      // Emit to sender so their UI updates
+      socket.emit("receiveMessage", populatedMessage);
+
+      // Emit to receiver only if online
+      const receiverSocketId = onlineUsers.get(receiver);
+      if (receiverSocketId) {
+        io.to(receiverSocketId).emit("receiveMessage", populatedMessage);
+      } else {
+        console.log(`📭 Receiver ${receiver} is offline — message saved only`);
+      }
     } catch (err) {
-      console.error("❌ Failed to save socket message:", err.message);
+      console.error("❌ Failed to send DM:", err.message);
     }
   });
 
+  // Step 3: Remove user on disconnect
   socket.on("disconnect", () => {
-    console.log(`🔴 Socket disconnected: ${socket.id}`);
+    for (const [userId, socketId] of onlineUsers.entries()) {
+      if (socketId === socket.id) {
+        onlineUsers.delete(userId);
+        console.log(`👋 User ${userId} disconnected`);
+        break;
+      }
+    }
   });
 });
 
