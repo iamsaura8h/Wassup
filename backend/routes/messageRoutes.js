@@ -1,11 +1,10 @@
-const express = require('express');
+import express from "express";
+import { getMessages, sendMessage } from "../controllers/messageController.js";
+import authMiddleware from "../middleware/authMiddleware.js";
+
 const router = express.Router();
-const { sendMessage } = require('../controllers/messageController');
-const authMiddleware = require('../middleware/authMiddleware');
-const {getMessagesBetweenUsers } = require('../controllers/messageController');
 
-// @route   POST /api/messages
-router.post('/', authMiddleware, sendMessage);
-router.get('/:user1/:user2', authMiddleware, getMessagesBetweenUsers);
+router.get("/:user1/:user2", authMiddleware, getMessages);
+router.post("/", authMiddleware, sendMessage);
 
-module.exports = router;
+export default router;

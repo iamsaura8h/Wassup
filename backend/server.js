@@ -1,104 +1,46 @@
-const express = require("express");
-const dotenv = require("dotenv");
-const cors = require("cors");
-const http = require("http"); // For socket.io
-const { Server } = require("socket.io"); // socket server
-const connectDB = require("./config/db");
-const Message = require("./models/Message");
-const app = express();
+import express from "express";
+import dotenv from "dotenv";
+import cors from "cors";
+import http from "http";
+import { Server } from "socket.io";
+import connectDB from "./config/db.js";
+
+import authRoutes from "./routes/authRoutes.js";
+import userRoutes from "./routes/userRoutes.js";
+import messageRoutes from "./routes/messageRoutes.js";
+
 dotenv.config();
-const onlineUsers = new Map();  // key: userId, value: socket.id
+connectDB();
 
-
-connectDB(); // connect MongoDB
-app.use(cors({
-  origin: "http://localhost:5173", //  frontend port
-  credentials: true,
-})); // middleware
+const app = express();
+app.use(cors());
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
 
-//  --- Routes ---
-// test route
-app.get("/", (req, res) => {
-  res.send("hello from Backend");
-});
-// Auth routes (register, login)
-app.use("/api/auth", require("./routes/authRoutes"));
-// Message routes (send & fetch messages - coming in next step)
-app.use("/api/messages", require("./routes/messageRoutes"));
-// user routes
-app.use("/api/users", require('./routes/userRoutes'));
+// Routes
+app.use("/api/auth", authRoutes);
+app.use("/api/users", userRoutes);
+app.use("/api/messages", messageRoutes);
 
-
-
-//  --- Socket.io ---
-// Http server for Socket.io
+// Socket setup
 const server = http.createServer(app);
-
-// Socket server setup with Cors
 const io = new Server(server, {
-  cors: {
-    origin: "*",
-    methods: ["GET", "POST"],
-  },
+  cors: { origin: "*" }
 });
-
 
 io.on("connection", (socket) => {
-  console.log(`🟢 New socket connected: ${socket.id}`);
+  console.log("User connected:", socket.id);
 
-  // Step 1: Add user to online map
-  socket.on("addUser", (userId) => {
-    onlineUsers.set(userId, socket.id);
-    console.log(`👤 User ${userId} is online with socket ${socket.id}`);
+  socket.on("send_message", (data) => {
+    io.to(data.receiverSocketId).emit("receive_message", data);
   });
 
-  // Step 2: Send a private message
-  socket.on("sendMessage", async (data) => {
-    try {
-      const { sender, receiver, text } = data;
-
-      // Save the message to MongoDB
-      const newMessage = await Message.create({
-        sender,
-        receiver,
-        text,
-      });
-
-      const populatedMessage =
-        (await newMessage
-          .populate("sender", "username")
-          .populate("receiver", "username")
-          .execPopulate?.()) || newMessage;
-
-      // Emit to sender so their UI updates
-      socket.emit("receiveMessage", populatedMessage);
-
-      // Emit to receiver only if online
-      const receiverSocketId = onlineUsers.get(receiver);
-      if (receiverSocketId) {
-        io.to(receiverSocketId).emit("receiveMessage", populatedMessage);
-      } else {
-        console.log(`📭 Receiver ${receiver} is offline — message saved only`);
-      }
-    } catch (err) {
-      console.error("❌ Failed to send DM:", err.message);
-    }
+  socket.on("join_room", (roomId) => {
+    socket.join(roomId);
   });
 
-  // Step 3: Remove user on disconnect
   socket.on("disconnect", () => {
-    for (const [userId, socketId] of onlineUsers.entries()) {
-      if (socketId === socket.id) {
-        onlineUsers.delete(userId);
-        console.log(`👋 User ${userId} disconnected`);
-        break;
-      }
-    }
+    console.log("User disconnected:", socket.id);
   });
 });
 
-//  --- start Server ---
-const PORT = process.env.PORT || 5000;
-server.listen(PORT, () => console.log(`Server running on port ${PORT} ☑️`));
+server.listen(5000, () => console.log("Server running on http://localhost:5000"));
