@@ -101,7 +101,7 @@ export default function ChatPage() {
           {selectedUserId ? (
             <MessageList
               messages={messages}
-              currentUserId={user?._id}
+              currentUserId={user!._id}
             />
           ) : (
             <p className="text-gray-500">Select a user to view messages</p>
