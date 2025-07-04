@@ -11,8 +11,12 @@ const onlineUsers = new Map();  // key: userId, value: socket.id
 
 
 connectDB(); // connect MongoDB
-app.use(cors()); // middleware
+app.use(cors({
+  origin: "http://localhost:5173", // your frontend port
+  credentials: true,
+})); // middleware
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 //  --- Routes ---
 // test route
