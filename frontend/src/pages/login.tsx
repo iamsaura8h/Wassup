@@ -1,62 +1,27 @@
 import { useState } from "react";
-import { loginUser } from "../api/auth";
-import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import api from "../utils/api";
+import { Link } from "react-router-dom";
 
 export default function Login() {
+  const { login } = useAuth();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
-  const navigate = useNavigate();
-  const { setUser } = useAuth();
-
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // console.log("Login attempt", { username, password });
-
-    try {
-      const res = await loginUser(username, password);
-      console.log("Logged in ✅", res);
-      localStorage.setItem("token", res.token); // Save/store token
-
-      localStorage.setItem("user", JSON.stringify(res.user));
-      setUser(res.user);
-      navigate("/chat"); // Redirect to chat
-    } catch (err) {
-      alert("Login failed");
-    }
+    const res = await api.post("/auth/login", { username, password });
+    login(res.data);
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <form
-        onSubmit={handleLogin}
-        className="bg-white p-6 rounded-2xl shadow-md w-full max-w-sm space-y-4"
-      >
-        <h1 className="text-2xl font-semibold text-center">Login</h1>
-
-        <input
-          type="text"
-          placeholder="Username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          className="w-full p-3 rounded-xl border focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="w-full p-3 rounded-xl border focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-
-        <button
-          type="submit"
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-xl transition"
-        >
-          Login
-        </button>
+    <div className="min-h-screen flex justify-center items-center bg-gray-100">
+      <form onSubmit={handleSubmit} className="bg-white p-6 rounded shadow w-80">
+        <h2 className="text-2xl font-semibold mb-4">Login</h2>
+        <input type="text" placeholder="Username" className="input" value={username} onChange={(e) => setUsername(e.target.value)} />
+        <input type="password" placeholder="Password" className="input" value={password} onChange={(e) => setPassword(e.target.value)} />
+        <button className="btn">Login</button>
+        <p className="mt-2 text-sm">No account? <Link to="/register" className="text-blue-500">Register</Link></p>
       </form>
     </div>
   );

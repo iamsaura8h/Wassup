@@ -1,19 +1,28 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Login from "./pages/login";
-import Register from "./pages/register";
+import React from "react";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { AuthProvider, useAuth } from "./context/AuthContext";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
 import ChatPage from "./pages/ChatPage";
-import LandingPage from "./pages/LandingPage";
 
-export default function App() {
+const PrivateRoute = ({ children }: { children: React.ReactElement }) => {
+  const { token } = useAuth();
+  return token ? children : <Navigate to="/login" />;
+};
+
+function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/chat" element={<ChatPage />} />
-        <Route path="*" element={<p className="text-center mt-10">404 Not Found 💀</p>} />
-      </Routes>
-    </BrowserRouter>
+    <Router>
+      <AuthProvider>
+        <Routes>
+          <Route path="/" element={<Navigate to="/chat" />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/chat" element={<PrivateRoute><ChatPage /></PrivateRoute>} />
+        </Routes>
+      </AuthProvider>
+    </Router>
   );
 }
+
+export default App;
