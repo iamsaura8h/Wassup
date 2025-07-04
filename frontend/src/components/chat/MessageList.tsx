@@ -2,7 +2,7 @@ import MessageBubble from "./MessageBubble";
 
 interface Message {
   _id: string;
-  sender: string;
+  sender: { _id: string; username: string };  // populated sender
   text: string;
 }
 
@@ -18,7 +18,7 @@ export default function MessageList({ messages, currentUserId }: Props) {
         <MessageBubble
           key={msg._id}
           text={msg.text}
-          isSender={msg.sender === currentUserId}
+          isSender={msg.sender._id === currentUserId}  // FIXED LINE ✅
         />
       ))}
     </div>

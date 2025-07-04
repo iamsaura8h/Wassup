@@ -19,8 +19,8 @@ export default function Login() {
       console.log("Logged in ✅", res);
       localStorage.setItem("token", res.token); // Save/store token
 
-      localStorage.setItem("user", username);
-      setUser(username);
+      localStorage.setItem("user", JSON.stringify(res.user));
+      setUser(res.user);
       navigate("/chat"); // Redirect to chat
     } catch (err) {
       alert("Login failed");
