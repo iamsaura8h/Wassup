@@ -1,9 +1,12 @@
 import { useState } from "react";
 import { loginUser } from "../api/auth";
+import { useNavigate } from "react-router-dom";
 
 export default function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+
+  const navigate = useNavigate();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -12,7 +15,8 @@ export default function Login() {
     try {
       const res = await loginUser(username, password);
       console.log("Logged in ✅", res);
-      // store token later
+      localStorage.setItem("token", res.token); // Save/store token 
+       navigate("/chat"); // Redirect to chat
     } catch (err) {
       alert("Login failed");
     }

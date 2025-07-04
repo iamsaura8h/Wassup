@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { registerUser } from "../api/auth";
+import { useNavigate } from "react-router-dom";
 
 export default function Register() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
+  const navigate = useNavigate();
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -17,6 +19,8 @@ export default function Register() {
       const res = await registerUser(username, password);
       console.log("Registered ✅", res);
       // maybe redirect to login
+      localStorage.setItem("token", res.token); // Save token
+      navigate("/chat");
     } catch (err) {
       alert("Registration failed");
     }
