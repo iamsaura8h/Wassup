@@ -12,7 +12,7 @@ const onlineUsers = new Map();  // key: userId, value: socket.id
 
 connectDB(); // connect MongoDB
 app.use(cors({
-  origin: "http://localhost:5173", // your frontend port
+  origin: "http://localhost:5173", //  frontend port
   credentials: true,
 })); // middleware
 app.use(express.json());
@@ -27,6 +27,10 @@ app.get("/", (req, res) => {
 app.use("/api/auth", require("./routes/authRoutes"));
 // Message routes (send & fetch messages - coming in next step)
 app.use("/api/messages", require("./routes/messageRoutes"));
+// user routes
+app.use("/api/users", require('./routes/userRoutes'));
+
+
 
 //  --- Socket.io ---
 // Http server for Socket.io
