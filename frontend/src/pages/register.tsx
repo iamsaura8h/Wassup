@@ -1,18 +1,25 @@
 import { useState } from "react";
+import { registerUser } from "../api/auth";
 
 export default function Register() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
 
-  const handleRegister = (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     if (password !== confirm) {
       alert("Passwords do not match!");
       return;
     }
-    console.log("Register attempt", { username, password });
-    // API call will go here later
+    // console.log("Register attempt", { username, password });
+    try {
+      const res = await registerUser(username, password);
+      console.log("Registered ✅", res);
+      // maybe redirect to login
+    } catch (err) {
+      alert("Registration failed");
+    }
   };
 
   return (

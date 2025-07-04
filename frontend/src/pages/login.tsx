@@ -1,13 +1,21 @@
 import { useState } from "react";
+import { loginUser } from "../api/auth";
 
 export default function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Login attempt", { username, password });
-    // API call will go here later
+    // console.log("Login attempt", { username, password });
+
+    try {
+      const res = await loginUser(username, password);
+      console.log("Logged in ✅", res);
+      // store token later
+    } catch (err) {
+      alert("Login failed");
+    }
   };
 
   return (
