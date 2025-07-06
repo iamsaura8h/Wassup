@@ -1,4 +1,4 @@
-const avatars = Array.from({ length: 12 }, (_, i) => `/avatars/avatar${i + 1}.png`);
+const avatars = Array.from({ length: 15 }, (_, i) => `/avatars/avatar${i + 1}.jpg`);
 
 export default function AvatarModal({ setAvatar, close }: any) {
   return (
@@ -8,6 +8,7 @@ export default function AvatarModal({ setAvatar, close }: any) {
           <img
             key={src}
             src={src}
+            alt="photu"
             className="w-16 h-16 cursor-pointer rounded-full hover:ring"
             onClick={() => {
               setAvatar(src);

@@ -18,7 +18,7 @@ export default function Sidebar({ setSelectedUser, selectedUser }: any) {
       onMouseLeave={() => setExpanded(false)}
     >
       <div className="p-4 flex items-center justify-between">
-        <img src={user?.avatar} className="w-10 h-10 rounded-full" />
+        <img src={user?.avatar} className="w-10 h-10 rounded-full" alt="lol" />
         {expanded && <button onClick={logout} className="text-sm text-red-500">Logout</button>}
       </div>
 
@@ -29,7 +29,7 @@ export default function Sidebar({ setSelectedUser, selectedUser }: any) {
             onClick={() => setSelectedUser(u)}
             className={`flex items-center gap-2 p-3 cursor-pointer hover:bg-gray-100 ${selectedUser?._id === u._id ? "bg-gray-200" : ""}`}
           >
-            <img src={u.avatar} className="w-10 h-10 rounded-full" />
+            <img src={u.avatar} className="w-10 h-10 rounded-full" alt="photuuu"/>
             {expanded && <span className="truncate">{u.username}</span>}
           </li>
         ))}
