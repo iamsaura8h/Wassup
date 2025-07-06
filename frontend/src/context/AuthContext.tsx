@@ -1,3 +1,4 @@
+// src/context/AuthContext.tsx
 import { createContext, useContext, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -19,15 +20,18 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true); // ✅ hydration state
   const navigate = useNavigate();
 
   useEffect(() => {
     const savedToken = localStorage.getItem("token");
     const savedUser = localStorage.getItem("user");
+
     if (savedToken && savedUser) {
       setToken(savedToken);
       setUser(JSON.parse(savedUser));
     }
+    setLoading(false); // ✅ only after hydration
   }, []);
 
   const login = ({ user, token }: { user: User; token: string }) => {
@@ -44,6 +48,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     localStorage.clear();
     navigate("/login");
   };
+
+  if (loading) return null; // ✅ wait until hydration is done
 
   return (
     <AuthContext.Provider value={{ user, token, login, logout }}>
