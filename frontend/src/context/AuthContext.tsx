@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 interface User {
   _id: string;
   username: string;
+  avatar: string;
 }
 
 interface AuthContextType {
@@ -30,16 +31,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   const login = ({ user, token }: { user: User; token: string }) => {
-    setUser(user);
     setToken(token);
+    setUser(user);
     localStorage.setItem("token", token);
     localStorage.setItem("user", JSON.stringify(user));
     navigate("/chat");
   };
 
   const logout = () => {
-    setUser(null);
     setToken(null);
+    setUser(null);
     localStorage.clear();
     navigate("/login");
   };

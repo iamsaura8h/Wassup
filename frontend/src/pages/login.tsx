@@ -18,8 +18,8 @@ export default function Login() {
     <div className="min-h-screen flex justify-center items-center bg-gray-100">
       <form onSubmit={handleSubmit} className="bg-white p-6 rounded shadow w-80">
         <h2 className="text-2xl font-semibold mb-4">Login</h2>
-        <input type="text" placeholder="Username" className="input" value={username} onChange={(e) => setUsername(e.target.value)} />
-        <input type="password" placeholder="Password" className="input" value={password} onChange={(e) => setPassword(e.target.value)} />
+        <input className="input" value={username} onChange={(e) => setUsername(e.target.value)} placeholder="Username" />
+        <input className="input" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password" />
         <button className="btn">Login</button>
         <p className="mt-2 text-sm">No account? <Link to="/register" className="text-blue-500">Register</Link></p>
       </form>

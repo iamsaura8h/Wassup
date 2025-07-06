@@ -5,21 +5,32 @@ import api from "../utils/api";
 export default function Sidebar({ setSelectedUser, selectedUser }: any) {
   const { logout, user } = useAuth();
   const [users, setUsers] = useState([]);
+  const [expanded, setExpanded] = useState(false);
 
   useEffect(() => {
     api.get("/users").then((res) => setUsers(res.data));
   }, []);
 
   return (
-    <div className="w-64 border-r bg-white flex flex-col">
-      <div className="p-4 font-bold border-b flex justify-between">
-        <span>{user?.username}</span>
-        <button onClick={logout} className="text-red-500">Logout</button>
+    <div
+      className={`h-full bg-white border-r transition-all duration-200 ${expanded ? "w-60" : "w-20"}`}
+      onMouseEnter={() => setExpanded(true)}
+      onMouseLeave={() => setExpanded(false)}
+    >
+      <div className="p-4 flex items-center justify-between">
+        <img src={user?.avatar} className="w-10 h-10 rounded-full" />
+        {expanded && <button onClick={logout} className="text-sm text-red-500">Logout</button>}
       </div>
-      <ul className="flex-1 overflow-y-auto">
+
+      <ul className="overflow-y-auto">
         {users.map((u: any) => (
-          <li key={u._id} onClick={() => setSelectedUser(u)} className={`p-3 hover:bg-gray-100 cursor-pointer ${selectedUser?._id === u._id ? "bg-gray-200" : ""}`}>
-            {u.username}
+          <li
+            key={u._id}
+            onClick={() => setSelectedUser(u)}
+            className={`flex items-center gap-2 p-3 cursor-pointer hover:bg-gray-100 ${selectedUser?._id === u._id ? "bg-gray-200" : ""}`}
+          >
+            <img src={u.avatar} className="w-10 h-10 rounded-full" />
+            {expanded && <span className="truncate">{u.username}</span>}
           </li>
         ))}
       </ul>
