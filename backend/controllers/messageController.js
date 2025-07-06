@@ -1,32 +1,37 @@
-import Message from "../models/Message.js";
+const Message = require('../models/Message');
 
-export const sendMessage = async (req, res) => {
-  const { receiverId, text } = req.body;
-  if (!receiverId || !text) return res.status(400).json({ error: "Invalid payload" });
-
-  const message = await Message.create({
-    sender: req.user._id,
-    receiver: receiverId,
-    text,
-  });
-
-  res.json(message);
-};
-
-export const getMessages = async (req, res) => {
+exports.getMessages = async (req, res) => {
   const { user1, user2 } = req.params;
   const messages = await Message.find({
     $or: [
       { sender: user1, receiver: user2 },
       { sender: user2, receiver: user1 }
     ]
-  }).sort("timestamp");
+  }).sort('timestamp');
 
   res.json(messages);
 };
 
-export const markSeen = async (req, res) => {
-  const { senderId } = req.body;
-  await Message.updateMany({ sender: senderId, receiver: req.user._id, seen: false }, { seen: true });
-  res.json({ success: true });
+exports.sendMessage = async (req, res) => {
+  const { sender, receiver, message } = req.body;
+  const newMessage = await Message.create({
+    sender,
+    receiver,
+    message,
+    delivered: true
+  });
+
+  res.status(201).json(newMessage);
+};
+
+exports.seenMessage = async (req, res) => {
+  try {
+    const updated = await Message.updateMany(
+      { sender: req.params.senderId, receiver: req.user._id, seen: false },
+      { $set: { seen: true } }
+    );
+    res.json({ message: 'Messages marked as seen', count: updated.modifiedCount });
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to update seen status' });
+  }
 };
